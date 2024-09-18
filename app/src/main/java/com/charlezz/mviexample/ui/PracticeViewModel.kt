@@ -12,36 +12,27 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import org.orbitmvi.orbit.Container
+import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.syntax.simple.intent
+import org.orbitmvi.orbit.syntax.simple.postSideEffect
+import org.orbitmvi.orbit.syntax.simple.reduce
+import org.orbitmvi.orbit.viewmodel.container
 import javax.inject.Inject
 
 @HiltViewModel
 class PracticeViewModel @Inject constructor(
     private val repository: MainRepository
-) : ViewModel() {
+) : ViewModel(), ContainerHost<PracticeState, String> {
 
-    private val event = Channel<PracticeEvent>()
+    override val container: Container<PracticeState, String> = container(PracticeState())
 
-    val state = event.receiveAsFlow()
-        .runningFold(PracticeState(), ::reduceState)
-        .stateIn(viewModelScope, SharingStarted.Eagerly, PracticeState())
-
-    private val _sideEffects = Channel<String>()
-
-    val sideEffects = _sideEffects.receiveAsFlow()
-
-    private fun reduceState(current: PracticeState, event: PracticeEvent): PracticeState {
-        return when (event) {
-            is PracticeEvent.Loading -> current.copy(loading = true)
-            is PracticeEvent.Loaded -> current.copy(loading = false, users = event.users)
-        }
-    }
-
-    fun fetchUsers() {
+    fun fetchUsers() = intent {
         viewModelScope.launch {
-            event.send(PracticeEvent.Loading)
+            reduce { state.copy(loading = true) }
             val users = repository.getUsers()
-            event.send(PracticeEvent.Loaded(users))
-            _sideEffects.send("${users.size} user(s) loaded")
+            reduce { state.copy(loading = false, users = users) }
+            postSideEffect("${users.size} user(s) loaded")
         }
     }
 
