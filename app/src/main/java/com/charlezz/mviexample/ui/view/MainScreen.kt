@@ -1,6 +1,13 @@
 package com.charlezz.mviexample.ui.view
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.CircularProgressIndicator
@@ -18,7 +25,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.charlezz.mviexample.data.model.User
-import com.charlezz.mviexample.ui.model.MainState
+import com.charlezz.mviexample.ui.model.PracticeState
 
 /**
  * @author soohwan.ok
@@ -26,15 +33,15 @@ import com.charlezz.mviexample.ui.model.MainState
  */
 @Composable
 fun MainScreen(
-    state: MainState,
+    state: PracticeState,
     onFetchClick: () -> Unit
 ) {
     if (state.users.isEmpty() || state.error != null) {
-        if(!state.loading){
+        if (!state.loading) {
             EmptyScreen(onFetchClick)
         }
     } else {
-        UserListScreen(state.users)
+        UserListScreen(state.users, onFetchClick)
     }
     if (state.loading) {
         LoadingProgressBar()
@@ -65,16 +72,22 @@ fun LoadingProgressBar() {
 }
 
 @Composable
-fun UserListScreen(users: List<User>) {
+fun UserListScreen(users: List<User>, onFetchClick: () -> Unit) {
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
+        item {
+            OutlinedButton(onClick = onFetchClick) {
+                Text(text = "Fetch")
+            }
+        }
         items(
             items = users,
             key = { item: User -> item.id },
             itemContent = { user: User ->
                 Column {
-                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
+                    ) {
                         AsyncImage(
                             modifier = Modifier
                                 .size(100.dp)

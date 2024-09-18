@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val mainViewModel: MainViewModel by viewModels()
+    private val mainViewModel: PracticeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
                 Surface {
                     MainScreen(
                         state = mainViewModel.state.collectAsState().value,
-                        onFetchClick = { mainViewModel.fetchUser() }
+                        onFetchClick = { mainViewModel.fetchUsers() }
                     )
                 }
             }
